@@ -7,39 +7,85 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         body {
-            background: url("{{ url_for('static', filename='assets/bg.jpg') }}") no-repeat center center fixed;
+            background: url("{{ url_for('static', filename='assets/bg3.jpg') }}") no-repeat center center fixed;
             background-size: cover;
             color: #fff;
         }
-        .container {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 50px;
-        }
-        .form-label {
+        .sidebar {
+            background-color: #343a40;
             color: #fff;
+            height: 100vh;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
         }
-        .btn-custom {
-            background-color: #28a745;
-            border-color: #28a745;
+        .sidebar a {
+            color: #fff;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
         }
-        .btn-custom:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">Dashboard</h1>
-        <h2>Your Pets</h2>
+    <div class="sidebar">
+        <h2>Vet Clinic</h2>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Pets</a>
+        <a href="#">Settings</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <div class="content">
+        <h1 class="mb-4">Dashboard</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Profile</h5>
+                        <p class="card-text">Manage your profile information.</p>
+                        <a href="#" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Pets</h5>
+                        <p class="card-text">View and manage your pets' information.</p>
+                        <a href="#" class="btn btn-primary">View Pets</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Settings</h5>
+                        <p class="card-text">Change your account settings.</p>
+                        <a href="#" class="btn btn-primary">Account Settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2 class="mb-4">Your Pets</h2>
         <ul class="list-group mb-4">
             {% for pet in pets %}
                 <li class="list-group-item">{{ pet.name }} ({{ pet.type }}) - Age: {{ pet.age }}</li>
             {% endfor %}
         </ul>
-        <h2>Add a Pet</h2>
+        <h2 class="mb-4">Add a Pet</h2>
         <form method="post" action="{{ url_for('add_pet') }}">
             <div class="mb-3">
                 <label for="name" class="form-label">Pet Name</label>
@@ -53,7 +99,7 @@
                 <label for="age" class="form-label">Age</label>
                 <input type="number" class="form-control" id="age" name="age" required>
             </div>
-            <button type="submit" class="btn btn-custom btn-lg w-100">Add Pet</button>
+            <button type="submit" class="btn btn-primary">Add Pet</button>
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

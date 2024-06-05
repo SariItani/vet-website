@@ -14,6 +14,7 @@ def register():
         email = request.form['email']
         password = request.form['password']
 
+        # Password validation
         if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
             flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
             return redirect(url_for('register'))
@@ -75,3 +76,9 @@ def add_pet():
     cursor.close()
     conn.close()
     return redirect(url_for('dashboard'))
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('login'))
