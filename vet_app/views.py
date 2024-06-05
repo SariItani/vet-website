@@ -3,17 +3,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from vet_app import app, mysql
 
-
-def validate_password(password):
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters long"
-    if not re.search(r'[A-Z]', password):
-        return False, "Password must contain at least one uppercase letter"
-    if not re.search(r'[\W_]', password):
-        return False, "Password must contain at least one special character"
-    return True, ""
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -24,16 +13,16 @@ def register():
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
-        
-        is_valid, message = validate_password(password)
-        if not is_valid:
-            flash(message, 'danger')
-            return render_template('register.html')
 
-        hashed_password = generate_password_hash(password)
+        # Password validation
+        if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
+            flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
+            return redirect(url_for('register'))
+
+        password_hashed = generate_password_hash(password)
         conn = mysql
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO Users (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
+        cursor.execute('INSERT INTO Users (name, email, password) VALUES (%s, %s, %s)', (name, email, password_hashed))
         conn.commit()
         cursor.close()
         conn.close()
