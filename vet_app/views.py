@@ -57,9 +57,11 @@ def dashboard():
     cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM Pets WHERE user_id = %s', (user_id,))
     pets = cursor.fetchall()
+    cursor.execute('SELECT name FROM Users WHERE id = %s', (user_id,))
+    username = cursor.fetchone()
     cursor.close()
     conn.close()
-    return render_template('dashboard.html', pets=pets)
+    return render_template('dashboard.html', pets=pets, username=username)
 
 @app.route('/add_pet', methods=['POST'])
 def add_pet():

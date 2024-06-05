@@ -37,11 +37,15 @@
         .card {
             background-color: rgba(255, 255, 255, 0.8);
         }
+        .sidebar img {
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>Vet Clinic</h2>
+        <img src="{{ url_for('static', filename='assets/vet.png') }}" alt="Vet Clinic Logo">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="#">Profile</a>
         <a href="#">Pets</a>
@@ -49,36 +53,7 @@
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
     <div class="content">
-        <h1 class="mb-4">Dashboard</h1>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Profile</h5>
-                        <p class="card-text">Manage your profile information.</p>
-                        <a href="#" class="btn btn-primary">Edit Profile</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Pets</h5>
-                        <p class="card-text">View and manage your pets' information.</p>
-                        <a href="#" class="btn btn-primary">View Pets</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Settings</h5>
-                        <p class="card-text">Change your account settings.</p>
-                        <a href="#" class="btn btn-primary">Account Settings</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h1 class="mb-4">Dashboard, Welcome {{username}}!</h1>
         <h2 class="mb-4">Your Pets</h2>
         <ul class="list-group mb-4">
             {% for pet in pets %}
