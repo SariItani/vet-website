@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-from vet_app import app, mysql
+from vet_app import app, get_db_connection
 
 @app.route('/')
 def index():
@@ -14,13 +14,12 @@ def register():
         email = request.form['email']
         password = request.form['password']
 
-        # Password validation
         if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
             flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
             return redirect(url_for('register'))
 
         password_hashed = generate_password_hash(password)
-        conn = mysql
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('INSERT INTO Users (name, email, password) VALUES (%s, %s, %s)', (name, email, password_hashed))
         conn.commit()
@@ -35,7 +34,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        conn = mysql
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute('SELECT * FROM Users WHERE email = %s', (email,))
         user = cursor.fetchone()
@@ -53,7 +52,7 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user_id = session['user_id']
-    conn = mysql
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM Pets WHERE user_id = %s', (user_id,))
     pets = cursor.fetchall()
@@ -69,7 +68,7 @@ def add_pet():
     name = request.form['name']
     type = request.form['type']
     age = request.form['age']
-    conn = mysql
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('INSERT INTO Pets (user_id, name, type, age) VALUES (%s, %s, %s, %s)', (user_id, name, type, age))
     conn.commit()
