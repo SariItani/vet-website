@@ -61,7 +61,7 @@ def dashboard():
     username = cursor.fetchone()
     cursor.close()
     conn.close()
-    return render_template('dashboard.html', pets=pets, username=username)
+    return render_template('dashboard.html', pets=pets, username=username['name'])
 
 @app.route('/add_pet', methods=['POST'])
 def add_pet():
