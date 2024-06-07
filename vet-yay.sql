@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS Users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    email_verified_at TIMESTAMP NULL
+    email_verified_at TIMESTAMP NULL,
+    verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255) DEFAULT NULL
 );
 
 -- Create Pets table
@@ -17,8 +19,6 @@ CREATE TABLE IF NOT EXISTS Pets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(255) NOT NULL,
-    age INT,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
@@ -38,3 +38,17 @@ CREATE TABLE IF NOT EXISTS pet_vaccines (
     FOREIGN KEY (pet_id) REFERENCES Pets(id) ON DELETE CASCADE,
     FOREIGN KEY (vaccine_id) REFERENCES Vaccines(id) ON DELETE CASCADE
 );
+
+-- Insert popular vaccines
+INSERT INTO Vaccines (name, description) VALUES
+('Rabies', 'Rabies vaccine for pets'),
+('Canine Distemper', 'Canine Distemper vaccine'),
+('Parvovirus', 'Parvovirus vaccine for dogs'),
+('Adenovirus', 'Adenovirus vaccine for dogs'),
+('Parainfluenza', 'Parainfluenza vaccine for dogs'),
+('Leptospirosis', 'Leptospirosis vaccine for pets'),
+('Feline Herpesvirus', 'Feline Herpesvirus vaccine'),
+('Calicivirus', 'Calicivirus vaccine for cats'),
+('Feline Panleukopenia', 'Feline Panleukopenia vaccine'),
+('Feline Leukemia', 'Feline Leukemia vaccine');
+
