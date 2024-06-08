@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Pets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
@@ -33,10 +34,9 @@ CREATE TABLE IF NOT EXISTS Vaccines (
 CREATE TABLE IF NOT EXISTS pet_vaccines (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pet_id INT NOT NULL,
-    vaccine_id INT NOT NULL,
+    vaccine_name VARCHAR(255) NOT NULL,
     vaccination_date DATE,
-    FOREIGN KEY (pet_id) REFERENCES Pets(id) ON DELETE CASCADE,
-    FOREIGN KEY (vaccine_id) REFERENCES Vaccines(id) ON DELETE CASCADE
+    FOREIGN KEY (pet_id) REFERENCES Pets(id) ON DELETE CASCADE
 );
 
 -- Insert popular vaccines
@@ -51,4 +51,3 @@ INSERT INTO Vaccines (name, description) VALUES
 ('Calicivirus', 'Calicivirus vaccine for cats'),
 ('Feline Panleukopenia', 'Feline Panleukopenia vaccine'),
 ('Feline Leukemia', 'Feline Leukemia vaccine');
-

@@ -85,13 +85,11 @@ def dashboard():
     user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT p.id, p.name, GROUP_CONCAT(v.name SEPARATOR ", ") as vaccines FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id LEFT JOIN Vaccines v ON pv.vaccine_id = v.id WHERE p.user_id = %s GROUP BY p.id', (user_id,))
+    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.user_id = %s GROUP BY p.id', (user_id,))
     pets = cursor.fetchall()
-    cursor.execute('SELECT * FROM Vaccines')
-    vaccines = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('dashboard.html', pets=pets, vaccines=vaccines, username=session.get('username'))
+    return render_template('dashboard.html', pets=pets, username=session.get('username'))
 
 @app.route('/add_pet', methods=['POST'])
 def add_pet():
@@ -99,12 +97,13 @@ def add_pet():
         return redirect(url_for('login'))
     user_id = session['user_id']
     name = request.form['name']
-    vaccine_id = request.form['vaccine_id']
+    type = request.form['type']
+    vaccine_name = request.form['vaccine_name']
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO Pets (user_id, name) VALUES (%s, %s)', (user_id, name))
+    cursor.execute('INSERT INTO Pets (user_id, name, type) VALUES (%s, %s, %s)', (user_id, name, type))
     pet_id = cursor.lastrowid
-    cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_id) VALUES (%s, %s)', (pet_id, vaccine_id))
+    cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
     conn.commit()
     cursor.close()
     conn.close()
@@ -131,22 +130,21 @@ def edit_pet(pet_id):
     cursor = conn.cursor(dictionary=True)
     if request.method == 'POST':
         name = request.form['name']
-        vaccine_id = request.form['vaccine_id']
-        cursor.execute('UPDATE Pets SET name = %s WHERE id = %s', (name, pet_id))
+        type = request.form['type']
+        vaccine_name = request.form['vaccine_name']
+        cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
         cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
-        cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_id) VALUES (%s, %s)', (pet_id, vaccine_id))
+        cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
         conn.commit()
         cursor.close()
         conn.close()
         flash('Pet updated successfully.', 'success')
         return redirect(url_for('dashboard'))
-    cursor.execute('SELECT * FROM Pets WHERE id = %s', (pet_id,))
+    cursor.execute('SELECT p.id, p.name, p.type, pv.vaccine_name FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
     pet = cursor.fetchone()
-    cursor.execute('SELECT * FROM Vaccines')
-    vaccines = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('edit_pet.html', pet=pet, vaccines=vaccines)
+    return render_template('edit_pet.html', pet=pet)
 
 @app.route('/logout')
 def logout():

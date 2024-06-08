@@ -1,6 +1,7 @@
 from flask import Flask
 import mysql.connector
 from flask_mail import Mail
+import os
 
 app = Flask(__name__)
 
@@ -15,7 +16,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'sariitani101@gmail.com'
-app.config['MAIL_PASSWORD'] = 'sariitani101'
+app.config['MAIL_PASSWORD'] = 'iozdolwpaiushskt'
 app.config['MAIL_DEFAULT_SENDER'] = 'sariitani101@gmail.com'
 
 mail = Mail(app)
