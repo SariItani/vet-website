@@ -23,18 +23,19 @@ def register():
 
         password_hashed = generate_password_hash(password)
         verification_token = str(uuid.uuid4())
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO Users (name, email, password, verification_token) VALUES (%s, %s, %s, %s)', (name, email, password_hashed, verification_token))
-        conn.commit()
-        cursor.close()
-        conn.close()
 
         # Send verification email
         verification_link = url_for('verify_email', token=verification_token, _external=True)
         msg = Message('Email Verification', recipients=[email])
         msg.body = f'Please click the link to verify your email: {verification_link}'
         mail.send(msg)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO Users (name, email, password, verification_token) VALUES (%s, %s, %s, %s)', (name, email, password_hashed, verification_token))
+        conn.commit()
+        cursor.close()
+        conn.close()
 
         flash('Registration successful. Please check your email to verify your account.', 'success')
         return redirect(url_for('login'))
