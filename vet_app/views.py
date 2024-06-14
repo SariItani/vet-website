@@ -278,29 +278,32 @@ def add_employee():
     conn.close()
     flash('Employee added successfully.', 'success')
     return redirect(url_for('admin_dashboard'))
-@app.route('/edit_employee/<int:employee_id>', methods=['GET', 'POST'])
-def edit_employee(employee_id):
+
+@app.route('/edit_employee', methods=['POST'])
+def edit_employee():
     if 'employee_id' not in session or session.get('employee_role') != 'admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    if request.method == 'POST':
-        email = request.form['email']
-        role = request.form['role']
-        cursor.execute('UPDATE Employees SET email = %s, role = %s WHERE id = %s', (email, role, employee_id))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Employee updated successfully.', 'success')
-        return redirect(url_for('admin_dashboard'))
+    employee_id = request.form['employee_id']
+    email = request.form['email']
+    role = request.form['role']
+    password = request.form.get('password')
     
-    cursor.execute('SELECT * FROM Employees WHERE id = %s', (employee_id,))
-    employee = cursor.fetchone()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if password:
+        password_hashed = generate_password_hash(password)
+        cursor.execute('UPDATE Employees SET email = %s, role = %s, password = %s WHERE id = %s', (email, role, password_hashed, employee_id))
+    else:
+        cursor.execute('UPDATE Employees SET email = %s, role = %s WHERE id = %s', (email, role, employee_id))
+    
+    conn.commit()
     cursor.close()
     conn.close()
-    return render_template('edit_employee.html', employee=employee)
+    flash('Employee updated successfully.', 'success')
+    return redirect(url_for('manage_employees'))
 
 @app.route('/delete_employee/<int:employee_id>', methods=['POST'])
 def delete_employee(employee_id):
@@ -315,7 +318,7 @@ def delete_employee(employee_id):
     cursor.close()
     conn.close()
     flash('Employee deleted successfully.', 'success')
-    return redirect(url_for('admin_dashboard'))
+    return redirect(url_for('manage_employees'))
 
 @app.route('/dashboard')
 def dashboard():
