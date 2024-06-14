@@ -60,6 +60,11 @@
     </div>    
     <div class="content">
         <h1 class="mb-4">Dashboard, Welcome {{ username }}!</h1>
+        <div class="text-center mb-4">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="img-thumbnail" alt="Profile Picture" style="max-width: 150px;">
+            {% endif %}
+        </div>
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

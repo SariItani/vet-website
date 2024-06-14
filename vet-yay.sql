@@ -41,6 +41,16 @@ CREATE TABLE IF NOT EXISTS pet_vaccines (
     FOREIGN KEY (pet_id) REFERENCES Pets(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL
+);
+
+-- Insert root user
+INSERT IGNORE INTO Employees (email, password, role) VALUES ('sariitani101@gmail.com', 'pbkdf2:sha256:600000$SnxWh1jlhzN8hqge$4ff5768ff9805cfb1a246b46baeb01ad8ac567e762ec39275e1b998747ec87e1', 'admin');
+
 -- Insert popular vaccines
 INSERT INTO Vaccines (name, description) VALUES
 ('Rabies', 'Rabies vaccine for pets'),
