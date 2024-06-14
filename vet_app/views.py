@@ -237,7 +237,7 @@ def admin_dashboard():
     total_pets = cursor.fetchone()['total_pets']
 
     # Get new verified users in the last 30 days
-    cursor.execute('SELECT COUNT(*) as new_users FROM Users WHERE email_verified_at >= CURDATE() - INTERVAL 30 DAY')
+    cursor.execute('SELECT COUNT(*) as new_users FROM Users WHERE registration_date >= CURDATE() - INTERVAL 30 DAY')
     new_users = cursor.fetchone()['new_users']
 
     # Get new pets in the last 30 days
@@ -252,14 +252,10 @@ def admin_dashboard():
     cursor.execute('SELECT vaccine_name, COUNT(*) as count FROM pet_vaccines GROUP BY vaccine_name ORDER BY count DESC LIMIT 1')
     common_vaccine = cursor.fetchone()['vaccine_name']
 
-    # Get active employees
-    cursor.execute('SELECT COUNT(*) as active_employees FROM Employees WHERE active = 1')
-    active_employees = cursor.fetchone()['active_employees']
-
     cursor.close()
     conn.close()
     
-    return render_template('admin_dashboard.html', total_users=total_users, total_pets=total_pets, new_users=new_users, new_pets=new_pets, popular_pet_type=popular_pet_type, common_vaccine=common_vaccine, active_employees=active_employees)
+    return render_template('admin_dashboard.html', total_users=total_users, total_pets=total_pets, new_users=new_users, new_pets=new_pets, popular_pet_type=popular_pet_type, common_vaccine=common_vaccine)
 
 @app.route('/manage_pets')
 def manage_pets():
