@@ -34,6 +34,19 @@
     <div class="container mt-5 text-center">
         <img src="{{ url_for('static', filename='assets/clinic.png') }}" alt="VetClinic Logo" class="logo">
         <h1 class="mb-4">Welcome to VetClinic</h1>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
         <p class="lead mb-4">Your one-stop solution for managing your pets' health records.</p>
         <div class="d-grid gap-2 d-md-block">
             <a href="{{ url_for('register') }}" class="btn btn-custom btn-lg">Register</a>

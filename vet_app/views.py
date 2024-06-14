@@ -20,6 +20,16 @@ def register():
         if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
             flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
             return redirect(url_for('register'))
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT email FROM Users WHERE email = %s', (email,))
+        existing_email = cursor.fetchone()
+        print(existing_email)
+        print(type(existing_email))
+        if existing_email:
+            flash('Registration Failed. Email already exists.', 'danger')
+            return redirect(url_for('register'))
 
         password_hashed = generate_password_hash(password)
         verification_token = str(uuid.uuid4())
@@ -40,6 +50,8 @@ def register():
         flash('Registration successful. Please check your email to verify your account.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
+
+
 
 @app.route('/verify_email/<token>')
 def verify_email(token):
