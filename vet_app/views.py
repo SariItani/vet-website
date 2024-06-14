@@ -6,7 +6,16 @@ import uuid
 from vet_app import app, get_db_connection, mail
 from flask_mail import Message
 from apscheduler.schedulers.background import BackgroundScheduler
+from PIL import Image
 
+
+def save_and_resize_image(image, filename):
+    image_path = os.path.join(app.root_path, 'static/uploads', filename)
+    image.save(image_path)
+    img = Image.open(image_path)
+    img.thumbnail((150, 150))
+    img.save(image_path)
+    print("image saved successfully at:", image_path)
 
 def send_vaccine_reminders():
     conn = get_db_connection()
@@ -27,6 +36,7 @@ def start_scheduler():
     scheduler.start()
 
 start_scheduler()
+
 
 @app.route('/')
 def index():
@@ -88,7 +98,6 @@ def profile():
             cursor.execute('UPDATE Users SET name = %s WHERE id = %s', (username, user_id))
             conn.commit()
             session['username'] = username
-            flash('Username updated successfully.', 'success')
         
         # Handle profile picture upload
         if 'profile_picture' in request.files:
@@ -98,7 +107,6 @@ def profile():
                 profile_picture.save(picture_path)
                 cursor.execute('UPDATE Users SET profile_picture = %s WHERE id = %s', (profile_picture.filename, user_id))
                 conn.commit()
-                flash('Profile picture updated successfully.', 'success')
         
         # Handle password change
         password = request.form.get('password')
@@ -109,7 +117,6 @@ def profile():
                 password_hashed = generate_password_hash(password)
                 cursor.execute('UPDATE Users SET password = %s WHERE id = %s', (password_hashed, user_id))
                 conn.commit()
-                flash('Password updated successfully.', 'success')
     
     cursor.execute('SELECT * FROM Users WHERE id = %s', (user_id,))
     user = cursor.fetchone()
@@ -191,7 +198,6 @@ def login():
         if employee and check_password_hash(employee['password'], password):
             session['employee_id'] = employee['id']
             session['employee_role'] = employee['role']
-            flash('Admin login successful.', 'success')
             return redirect(url_for('admin_dashboard'))
         
         cursor.execute('SELECT * FROM Users WHERE email = %s', (email,))
@@ -204,7 +210,6 @@ def login():
             session['username'] = user['name']
             cursor.close()
             conn.close()
-            flash('Login successful.', 'success')
             return redirect(url_for('dashboard'))
         
         flash('Invalid email or password.', 'danger')
@@ -234,10 +239,10 @@ def manage_pets():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute('''
-        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, u.name as owner_name, u.email as owner_email
-        FROM Pets p
-        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id
-        LEFT JOIN Users u ON p.user_id = u.id
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo, u.name as owner_name, u.email as owner_email 
+        FROM Pets p 
+        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id 
+        LEFT JOIN Users u ON p.user_id = u.id 
         GROUP BY p.id
     ''')
     pets = cursor.fetchall()
@@ -276,7 +281,6 @@ def add_employee():
     conn.commit()
     cursor.close()
     conn.close()
-    flash('Employee added successfully.', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/edit_employee', methods=['POST'])
@@ -302,7 +306,6 @@ def edit_employee():
     conn.commit()
     cursor.close()
     conn.close()
-    flash('Employee updated successfully.', 'success')
     return redirect(url_for('manage_employees'))
 
 @app.route('/delete_employee/<int:employee_id>', methods=['POST'])
@@ -324,10 +327,17 @@ def delete_employee(employee_id):
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.user_id = %s GROUP BY p.id', (user_id,))
+    cursor.execute('''
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo 
+        FROM Pets p 
+        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id 
+        WHERE p.user_id = %s 
+        GROUP BY p.id
+    ''', (user_id,))
     pets = cursor.fetchall()
     user = cursor.execute('SELECT * from Users WHERE id = %s', (user_id,))
     user = cursor.fetchone()
@@ -343,27 +353,22 @@ def add_pet():
     name = request.form['name']
     type = request.form['type']
     vaccine_name = request.form['vaccine_name']
+    
+    photo_filename = None
+    if 'pet_photo' in request.files:
+        pet_photo = request.files['pet_photo']
+        if pet_photo.filename != '':
+            photo_filename = pet_photo.filename
+            save_and_resize_image(pet_photo, photo_filename)
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO Pets (user_id, name, type) VALUES (%s, %s, %s)', (user_id, name, type))
+    cursor.execute('INSERT INTO Pets (user_id, name, type, photo) VALUES (%s, %s, %s, %s)', (user_id, name, type, photo_filename))
     pet_id = cursor.lastrowid
     cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
     conn.commit()
     cursor.close()
     conn.close()
-    return redirect(url_for('dashboard'))
-
-@app.route('/delete_pet/<int:pet_id>', methods=['POST'])
-def delete_pet(pet_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM Pets WHERE id = %s', (pet_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    flash('Pet deleted successfully.', 'success')
     return redirect(url_for('dashboard'))
 
 @app.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
@@ -380,9 +385,9 @@ def edit_pet(pet_id):
         if 'pet_photo' in request.files:
             pet_photo = request.files['pet_photo']
             if pet_photo.filename != '':
-                photo_path = os.path.join(app.root_path, 'static/uploads', pet_photo.filename)
-                pet_photo.save(photo_path)
-                cursor.execute('UPDATE Pets SET photo = %s WHERE id = %s', (pet_photo.filename, pet_id))
+                photo_filename = pet_photo.filename
+                save_and_resize_image(pet_photo, photo_filename)
+                cursor.execute('UPDATE Pets SET photo = %s WHERE id = %s', (photo_filename, pet_id))
         
         cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
         cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
@@ -390,7 +395,6 @@ def edit_pet(pet_id):
         conn.commit()
         cursor.close()
         conn.close()
-        flash('Pet updated successfully.', 'success')
         return redirect(url_for('dashboard'))
     cursor.execute('SELECT p.id, p.name, p.type, pv.vaccine_name, p.photo FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
     pet = cursor.fetchone()
@@ -398,9 +402,20 @@ def edit_pet(pet_id):
     conn.close()
     return render_template('edit_pet.html', pet=pet)
 
+@app.route('/delete_pet/<int:pet_id>', methods=['POST'])
+def delete_pet(pet_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM Pets WHERE id = %s', (pet_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Pet deleted successfully.', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('You have been logged out.', 'success')
     return redirect(url_for('login'))

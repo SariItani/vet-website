@@ -60,6 +60,9 @@
     </div>    
     <div class="content">
         <h1 class="mb-4">Edit Pet</h1>
+        {% if pet.photo %}
+            <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
+        {% endif %}
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
