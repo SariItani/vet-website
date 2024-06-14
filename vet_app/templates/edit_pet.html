@@ -86,7 +86,11 @@
                 <label for="vaccine_name" class="form-label">Vaccine</label>
                 <input type="text" class="form-control" id="vaccine_name" name="vaccine_name" value="{{ pet.vaccine_name }}" required>
             </div>
-            <button type="submit" class="btn btn-primary">Update Pet</button>
+            <div class="mb-3">
+                <label for="pet_photo" class="form-label">Pet Photo</label>
+                <input type="file" class="form-control" id="pet_photo" name="pet_photo">
+            </div>
+            <button type="submit" class="btn btn-success">Update</button>
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

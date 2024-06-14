@@ -376,6 +376,14 @@ def edit_pet(pet_id):
         name = request.form['name']
         type = request.form['type']
         vaccine_name = request.form['vaccine_name']
+        
+        if 'pet_photo' in request.files:
+            pet_photo = request.files['pet_photo']
+            if pet_photo.filename != '':
+                photo_path = os.path.join(app.root_path, 'static/uploads', pet_photo.filename)
+                pet_photo.save(photo_path)
+                cursor.execute('UPDATE Pets SET photo = %s WHERE id = %s', (pet_photo.filename, pet_id))
+        
         cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
         cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
         cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
@@ -384,11 +392,12 @@ def edit_pet(pet_id):
         conn.close()
         flash('Pet updated successfully.', 'success')
         return redirect(url_for('dashboard'))
-    cursor.execute('SELECT p.id, p.name, p.type, pv.vaccine_name FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
+    cursor.execute('SELECT p.id, p.name, p.type, pv.vaccine_name, p.photo FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
     pet = cursor.fetchone()
     cursor.close()
     conn.close()
     return render_template('edit_pet.html', pet=pet)
+
 
 @app.route('/logout')
 def logout():

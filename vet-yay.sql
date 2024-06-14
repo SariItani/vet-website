@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS Pets (
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
+    photo VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 

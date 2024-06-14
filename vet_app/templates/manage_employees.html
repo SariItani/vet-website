@@ -67,7 +67,7 @@
             <img src="{{ url_for('static', filename='assets/clinic.png') }}" alt="Vet Clinic Logo">
         </a>
         <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
-        <a href="{{ url_for('manage_pets') }}">Manage Pets</a>
+        <a href="{{ url_for('manage_pets') }}">View Pets</a>
         <a href="{{ url_for('manage_employees') }}">Manage Employees</a>
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
@@ -86,7 +86,6 @@
             </div>
         {% endif %}
         {% endwith %}
-        <h2 class="mb-4">All Employees</h2>
         <ul class="list-group mb-4">
             {% for employee in employees %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">

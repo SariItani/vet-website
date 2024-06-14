@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Pets</title>
+    <title>View Pets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         body {
@@ -55,12 +55,12 @@
             <img src="{{ url_for('static', filename='assets/clinic.png') }}" alt="Vet Clinic Logo">
         </a>
         <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
-        <a href="{{ url_for('manage_pets') }}">Manage Pets</a>
+        <a href="{{ url_for('manage_pets') }}">View Pets</a>
         <a href="{{ url_for('manage_employees') }}">Manage Employees</a>
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
     <div class="content">
-        <h1 class="mb-4">Manage Pets</h1>
+        <h1 class="mb-4">View Pets</h1>
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -74,7 +74,6 @@
             </div>
         {% endif %}
         {% endwith %}
-        <h2 class="mb-4">All Pets</h2>
         <ul class="list-group mb-4">
             {% for pet in pets %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
