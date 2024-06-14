@@ -233,7 +233,13 @@ def manage_pets():
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id GROUP BY p.id')
+    cursor.execute('''
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, u.name as owner_name, u.email as owner_email
+        FROM Pets p
+        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id
+        LEFT JOIN Users u ON p.user_id = u.id
+        GROUP BY p.id
+    ''')
     pets = cursor.fetchall()
     cursor.close()
     conn.close()
