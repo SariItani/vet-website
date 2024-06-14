@@ -83,6 +83,10 @@
         
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
+                <label for="username" class="form-label">Change Username</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.name }}">
+            </div>
+            <div class="mb-3">
                 <label for="profile_picture" class="form-label">Change Profile Picture</label>
                 <input type="file" class="form-control" id="profile_picture" name="profile_picture">
             </div>
