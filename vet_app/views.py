@@ -173,10 +173,21 @@ def verify_email(token):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+        email = request.form['email']
+        password = request.form['password']
+
+        cursor.execute('SELECT * FROM Employees WHERE email = %s', (email,))
+        employee = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if employee and check_password_hash(employee['password'], password):
+            session['employee_id'] = employee['id']
+            session['employee_role'] = employee['role']
+            flash('Admin login successful.', 'success')
+            return redirect(url_for('admin_dashboard'))
+        
         cursor.execute('SELECT * FROM Users WHERE email = %s', (email,))
         user = cursor.fetchone()
         if user and check_password_hash(user['password'], password):
@@ -188,16 +199,6 @@ def login():
             flash('Login successful.', 'success')
             return redirect(url_for('dashboard'))
         
-        cursor.execute('SELECT * FROM Employees WHERE email = %s', (email,))
-        employee = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        if employee and check_password_hash(employee['password'], password):
-            session['employee_id'] = employee['id']
-            session['employee_role'] = employee['role']
-            flash('Admin login successful.', 'success')
-            return redirect(url_for('admin_dashboard'))
-        
         flash('Invalid email or password.', 'danger')
     return render_template('login.html')
 
@@ -207,66 +208,41 @@ def admin_dashboard():
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     # Admin dashboard logic here
-    return render_template('admin_dashboard.html')
-
-@app.route('/add_employee', methods=['POST'])
-def add_employee():
-    if 'employee_id' not in session or session.get('employee_role') != 'admin':
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('login'))
-    
-    email = request.form['email']
-    password = request.form['password']
-    role = request.form['role']
-    password_hashed = generate_password_hash(password)
-    
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO Employees (email, password, role) VALUES (%s, %s, %s)', (email, password_hashed, role))
-    conn.commit()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM Employees')
+    employees = cursor.fetchall()
     cursor.close()
     conn.close()
-    flash('Employee added successfully.', 'success')
-    return redirect(url_for('admin_dashboard'))
+    return render_template('admin_dashboard.html', employees=employees)
 
-@app.route('/edit_employee/<int:employee_id>', methods=['GET', 'POST'])
-def edit_employee(employee_id):
+@app.route('/manage_pets')
+def manage_pets():
     if 'employee_id' not in session or session.get('employee_role') != 'admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    if request.method == 'POST':
-        email = request.form['email']
-        role = request.form['role']
-        cursor.execute('UPDATE Employees SET email = %s, role = %s WHERE id = %s', (email, role, employee_id))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Employee updated successfully.', 'success')
-        return redirect(url_for('admin_dashboard'))
-    
-    cursor.execute('SELECT * FROM Employees WHERE id = %s', (employee_id,))
-    employee = cursor.fetchone()
+    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id GROUP BY p.id')
+    pets = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('edit_employee.html', employee=employee)
+    return render_template('manage_pets.html', pets=pets)
 
-@app.route('/delete_employee/<int:employee_id>', methods=['POST'])
-def delete_employee(employee_id):
+@app.route('/manage_employees')
+def manage_employees():
     if 'employee_id' not in session or session.get('employee_role') != 'admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM Employees WHERE id = %s', (employee_id,))
-    conn.commit()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM Employees')
+    employees = cursor.fetchall()
     cursor.close()
     conn.close()
-    flash('Employee deleted successfully.', 'success')
-    return redirect(url_for('admin_dashboard'))
+    return render_template('manage_employees.html', employees=employees)
 
 @app.route('/dashboard')
 def dashboard():
