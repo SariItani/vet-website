@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS Users (
     password VARCHAR(255) NOT NULL,
     email_verified_at TIMESTAMP NULL,
     verified BOOLEAN DEFAULT FALSE,
-    verification_token VARCHAR(255) DEFAULT NULL
+    verification_token VARCHAR(255) DEFAULT NULL,
+    reset_token VARCHAR(255)
 );
 
 -- Create Pets table
