@@ -4,6 +4,28 @@ import re
 import uuid
 from vet_app import app, get_db_connection, mail
 from flask_mail import Message
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+def send_vaccine_reminders():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT u.email, p.name as pet_name, pv.vaccine_name, pv.due_date FROM Users u JOIN Pets p ON u.id = p.user_id JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE pv.due_date = CURDATE() + INTERVAL 1 DAY')
+    reminders = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    for reminder in reminders:
+        msg = Message('Vaccine Reminder', recipients=[reminder['email']])
+        msg.body = f"Dear {reminder['email']},\n\nThis is a reminder that your pet {reminder['pet_name']} is due for the {reminder['vaccine_name']} vaccine tomorrow ({reminder['due_date']}).\n\nBest regards,\nVetClinic"
+        mail.send(msg)
+
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(send_vaccine_reminders, 'interval', days=1)
+    scheduler.start()
+
+start_scheduler()
 
 @app.route('/')
 def index():
@@ -51,7 +73,49 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if request.method == 'POST':
+        email = request.form['email']
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute('SELECT * FROM Users WHERE email = %s', (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if user:
+            reset_token = str(uuid.uuid4())
+            reset_link = url_for('reset_password', token=reset_token, _external=True)
+            msg = Message('Password Reset Request', recipients=[email])
+            msg.body = f'Please click the link to reset your password: {reset_link}'
+            mail.send(msg)
 
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('UPDATE Users SET reset_token = %s WHERE email = %s', (reset_token, email))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            flash('Password reset email sent. Please check your email.', 'info')
+        else:
+            flash('Email not found.', 'danger')
+    return render_template('reset_password_request.html')
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if request.method == 'POST':
+        password = request.form['password']
+        password_hashed = generate_password_hash(password)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('UPDATE Users SET password = %s, reset_token = NULL WHERE reset_token = %s', (password_hashed, token))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash('Password reset successful. You can now log in.', 'success')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html')
 
 @app.route('/verify_email/<token>')
 def verify_email(token):
