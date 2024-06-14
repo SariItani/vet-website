@@ -1,3 +1,4 @@
+import os
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
@@ -47,8 +48,6 @@ def register():
         cursor = conn.cursor()
         cursor.execute('SELECT email FROM Users WHERE email = %s', (email,))
         existing_email = cursor.fetchone()
-        print(existing_email)
-        print(type(existing_email))
         if existing_email:
             flash('Registration Failed. Email already exists.', 'danger')
             return redirect(url_for('register'))
@@ -72,6 +71,44 @@ def register():
         flash('Registration successful. Please check your email to verify your account.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        # Handle profile picture upload
+        if 'profile_picture' in request.files:
+            profile_picture = request.files['profile_picture']
+            if profile_picture.filename != '':
+                picture_path = os.path.join(app.root_path, 'static/uploads', profile_picture.filename)
+                profile_picture.save(picture_path)
+                cursor.execute('UPDATE Users SET profile_picture = %s WHERE id = %s', (profile_picture.filename, user_id))
+                conn.commit()
+                flash('Profile picture updated successfully.', 'success')
+        
+        # Handle password change
+        password = request.form.get('password')
+        if password:
+            if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
+                flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
+            else:
+                password_hashed = generate_password_hash(password)
+                cursor.execute('UPDATE Users SET password = %s WHERE id = %s', (password_hashed, user_id))
+                conn.commit()
+                flash('Password updated successfully.', 'success')
+    
+    cursor.execute('SELECT * FROM Users WHERE id = %s', (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return render_template('profile.html', user=user)
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():

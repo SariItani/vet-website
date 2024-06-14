@@ -52,14 +52,12 @@
 <body>
     <div class="sidebar">
         <a href="{{ url_for('dashboard') }}">
-            <img src="{{ url_for('static', filename='assets/vet.png') }}" alt="Vet Clinic Logo">
+            <img src="{{ url_for('static', filename='assets/clinic.png') }}" alt="Vet Clinic Logo">
         </a>
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="#">Profile</a>
-        <a href="#">Pets</a>
-        <a href="#">Settings</a>
+        <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{ url_for('logout') }}">Logout</a>
-    </div>
+    </div>    
     <div class="content">
         <h1 class="mb-4">Dashboard, Welcome {{ username }}!</h1>
         <!-- Flash Messages -->
