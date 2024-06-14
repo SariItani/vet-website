@@ -20,14 +20,20 @@ def save_and_resize_image(image, filename):
 def send_vaccine_reminders():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT u.email, p.name as pet_name, pv.vaccine_name, pv.due_date FROM Users u JOIN Pets p ON u.id = p.user_id JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE pv.due_date = CURDATE() + INTERVAL 1 DAY')
+    cursor.execute('''
+        SELECT u.email, p.name as pet_name, pv.vaccine_name, pv.vaccination_date
+        FROM pet_vaccines pv
+        JOIN Pets p ON pv.pet_id = p.id
+        JOIN Users u ON p.user_id = u.id
+        WHERE pv.vaccination_date = CURDATE()
+    ''')
     reminders = cursor.fetchall()
     cursor.close()
     conn.close()
 
     for reminder in reminders:
         msg = Message('Vaccine Reminder', recipients=[reminder['email']])
-        msg.body = f"Dear {reminder['email']},\n\nThis is a reminder that your pet {reminder['pet_name']} is due for the {reminder['vaccine_name']} vaccine tomorrow ({reminder['due_date']}).\n\nBest regards,\nVetClinic"
+        msg.body = f'Dear pet owner, this is a reminder for your pet {reminder["pet_name"]}\'s vaccine: {reminder["vaccine_name"]} scheduled for today.'
         mail.send(msg)
 
 def start_scheduler():
@@ -71,9 +77,7 @@ def register():
         msg.body = f'Please click the link to verify your email: {verification_link}'
         mail.send(msg)
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO Users (name, email, password, verification_token) VALUES (%s, %s, %s, %s)', (name, email, password_hashed, verification_token))
+        cursor.execute('INSERT INTO Users (name, email, password, verification_token, registration_date) VALUES (%s, %s, %s, %s, CURDATE())', (name, email, password_hashed, verification_token))
         conn.commit()
         cursor.close()
         conn.close()
@@ -215,20 +219,47 @@ def login():
         flash('Invalid email or password.', 'danger')
     return render_template('login.html')
 
-
 @app.route('/admin_dashboard')
 def admin_dashboard():
     if 'employee_id' not in session or session.get('employee_role') != 'admin':
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
-    # Admin dashboard logic here
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM Employees')
-    employees = cursor.fetchall()
+
+    # Get total users
+    cursor.execute('SELECT COUNT(*) as total_users FROM Users')
+    total_users = cursor.fetchone()['total_users']
+
+    # Get total pets
+    cursor.execute('SELECT COUNT(*) as total_pets FROM Pets')
+    total_pets = cursor.fetchone()['total_pets']
+
+    # Get new verified users in the last 30 days
+    cursor.execute('SELECT COUNT(*) as new_users FROM Users WHERE email_verified_at >= CURDATE() - INTERVAL 30 DAY')
+    new_users = cursor.fetchone()['new_users']
+
+    # Get new pets in the last 30 days
+    cursor.execute('SELECT COUNT(*) as new_pets FROM Pets WHERE registration_date >= CURDATE() - INTERVAL 30 DAY')
+    new_pets = cursor.fetchone()['new_pets']
+
+    # Get most popular pet type
+    cursor.execute('SELECT type, COUNT(*) as count FROM Pets GROUP BY type ORDER BY count DESC LIMIT 1')
+    popular_pet_type = cursor.fetchone()['type']
+
+    # Get most common vaccines
+    cursor.execute('SELECT vaccine_name, COUNT(*) as count FROM pet_vaccines GROUP BY vaccine_name ORDER BY count DESC LIMIT 1')
+    common_vaccine = cursor.fetchone()['vaccine_name']
+
+    # Get active employees
+    cursor.execute('SELECT COUNT(*) as active_employees FROM Employees WHERE active = 1')
+    active_employees = cursor.fetchone()['active_employees']
+
     cursor.close()
     conn.close()
-    return render_template('admin_dashboard.html', employees=employees)
+    
+    return render_template('admin_dashboard.html', total_users=total_users, total_pets=total_pets, new_users=new_users, new_pets=new_pets, popular_pet_type=popular_pet_type, common_vaccine=common_vaccine, active_employees=active_employees)
 
 @app.route('/manage_pets')
 def manage_pets():
@@ -363,7 +394,7 @@ def add_pet():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO Pets (user_id, name, type, photo) VALUES (%s, %s, %s, %s)', (user_id, name, type, photo_filename))
+    cursor.execute('INSERT INTO Pets (user_id, name, type, photo, registration_date) VALUES (%s, %s, %s, %s, CURDATE())', (user_id, name, type, photo_filename))
     pet_id = cursor.lastrowid
     cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
     conn.commit()

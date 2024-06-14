@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS Users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email_verified_at TIMESTAMP NULL,
+    registration_date DATE,
     verified BOOLEAN DEFAULT FALSE,
     verification_token VARCHAR(255) DEFAULT NULL,
     reset_token VARCHAR(255),
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS Pets (
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     photo VARCHAR(255),
+    registration_date DATE,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
