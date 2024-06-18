@@ -221,7 +221,7 @@ def login():
 
 @app.route('/admin_dashboard')
 def admin_dashboard():
-    if 'employee_id' not in session or session.get('employee_role') != 'admin':
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'employee']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
@@ -246,30 +246,38 @@ def admin_dashboard():
 
     # Get most popular pet type
     cursor.execute('SELECT type, COUNT(*) as count FROM Pets GROUP BY type ORDER BY count DESC LIMIT 1')
-    popular_pet_type = cursor.fetchone()['type']
+    popular_pet_type = cursor.fetchone()
+    if popular_pet_type:
+        popular_pet_type = popular_pet_type['type']
 
     # Get most common vaccines
     cursor.execute('SELECT vaccine_name, COUNT(*) as count FROM pet_vaccines GROUP BY vaccine_name ORDER BY count DESC LIMIT 1')
-    common_vaccine = cursor.fetchone()['vaccine_name']
+    common_vaccine = cursor.fetchone()
+    if common_vaccine: 
+        common_vaccine = common_vaccine['vaccine_name']
+
+    # Get total recent vaccines
+    cursor.execute('SELECT COUNT(*) as recent_vaccines FROM pet_vaccines WHERE vaccination_date >= CURDATE() - INTERVAL 30 DAY')
+    recent_vaccines = cursor.fetchone()['recent_vaccines']
 
     cursor.close()
     conn.close()
-    
-    return render_template('admin_dashboard.html', total_users=total_users, total_pets=total_pets, new_users=new_users, new_pets=new_pets, popular_pet_type=popular_pet_type, common_vaccine=common_vaccine)
+
+    return render_template('admin_dashboard.html', total_users=total_users, total_pets=total_pets, new_users=new_users, new_pets=new_pets, popular_pet_type=popular_pet_type, common_vaccine=common_vaccine, recent_vaccines=recent_vaccines)
 
 @app.route('/manage_pets')
 def manage_pets():
-    if 'employee_id' not in session or session.get('employee_role') != 'admin':
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'employee']:
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute('''
-        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo, u.name as owner_name, u.email as owner_email 
-        FROM Pets p 
-        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id 
-        LEFT JOIN Users u ON p.user_id = u.id 
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(CONCAT(pv.vaccine_name, ' (', pv.vaccination_date, ')') SEPARATOR ", ") as vaccines, p.photo, u.name as owner_name, u.email as owner_email
+        FROM Pets p
+        LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id
+        LEFT JOIN Users u ON p.user_id = u.id
         GROUP BY p.id
     ''')
     pets = cursor.fetchall()
@@ -350,6 +358,55 @@ def delete_employee(employee_id):
     flash('Employee deleted successfully.', 'success')
     return redirect(url_for('manage_employees'))
 
+@app.route('/admin_edit_pet/<int:pet_id>', methods=['GET', 'POST'])
+def admin_edit_pet(pet_id):
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'employee']:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        name = request.form['name']
+        type = request.form['type']
+        
+        vaccines = request.form.getlist('vaccine_name[]')
+        vaccination_dates = request.form.getlist('vaccination_date[]')
+        
+        if 'pet_photo' in request.files:
+            pet_photo = request.files['pet_photo']
+            if pet_photo.filename != '':
+                photo_filename = pet_photo.filename
+                save_and_resize_image(pet_photo, photo_filename)
+                cursor.execute('UPDATE Pets SET photo = %s WHERE id = %s', (photo_filename, pet_id))
+        
+        cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
+        cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
+        for vaccine_name, vaccination_date in zip(vaccines, vaccination_dates):
+            cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name, vaccination_date) VALUES (%s, %s, %s)', (pet_id, vaccine_name, vaccination_date))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for('manage_pets'))
+    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
+    pet = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template('admin_edit_pet.html', pet=pet)
+
+@app.route('/admin_delete_pet/<int:pet_id>', methods=['POST'])
+def admin_delete_pet(pet_id):
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'employee']:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM Pets WHERE id = %s', (pet_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Pet deleted successfully.', 'success')
+    return redirect(url_for('manage_pets'))
+
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
@@ -359,7 +416,7 @@ def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute('''
-        SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo 
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(CONCAT(pv.vaccine_name, ' (', pv.vaccination_date, ')') SEPARATOR ", ") as vaccines, p.photo 
         FROM Pets p 
         LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id 
         WHERE p.user_id = %s 
@@ -379,7 +436,9 @@ def add_pet():
     user_id = session['user_id']
     name = request.form['name']
     type = request.form['type']
-    vaccine_name = request.form['vaccine_name']
+    
+    vaccines = request.form.getlist('vaccine_name[]')
+    vaccination_dates = request.form.getlist('vaccination_date[]')
     
     photo_filename = None
     if 'pet_photo' in request.files:
@@ -392,7 +451,8 @@ def add_pet():
     cursor = conn.cursor()
     cursor.execute('INSERT INTO Pets (user_id, name, type, photo, registration_date) VALUES (%s, %s, %s, %s, CURDATE())', (user_id, name, type, photo_filename))
     pet_id = cursor.lastrowid
-    cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
+    for vaccine_name, vaccination_date in zip(vaccines, vaccination_dates):
+        cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name, vaccination_date) VALUES (%s, %s, %s)', (pet_id, vaccine_name, vaccination_date))
     conn.commit()
     cursor.close()
     conn.close()
@@ -407,7 +467,9 @@ def edit_pet(pet_id):
     if request.method == 'POST':
         name = request.form['name']
         type = request.form['type']
-        vaccine_name = request.form['vaccine_name']
+        
+        vaccines = request.form.getlist('vaccine_name[]')
+        vaccination_dates = request.form.getlist('vaccination_date[]')
         
         if 'pet_photo' in request.files:
             pet_photo = request.files['pet_photo']
@@ -418,13 +480,17 @@ def edit_pet(pet_id):
         
         cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
         cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
-        cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name) VALUES (%s, %s)', (pet_id, vaccine_name))
+        for vaccine_name, vaccination_date in zip(vaccines, vaccination_dates):
+            cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name, vaccination_date) VALUES (%s, %s, %s)', (pet_id, vaccine_name, vaccination_date))
         conn.commit()
         cursor.close()
         conn.close()
         return redirect(url_for('dashboard'))
-    cursor.execute('SELECT p.id, p.name, p.type, pv.vaccine_name, p.photo FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
+    
+    cursor.execute('SELECT id, name, type, photo FROM Pets WHERE id = %s', (pet_id,))
     pet = cursor.fetchone()
+    cursor.execute('SELECT vaccine_name, vaccination_date FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
+    pet['vaccines'] = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template('edit_pet.html', pet=pet)

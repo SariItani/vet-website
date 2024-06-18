@@ -62,6 +62,8 @@
         <h1 class="mb-4">Edit Pet</h1>
         {% if pet.photo %}
             <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
+        {% else %}
+            <p>image not available</p>
         {% endif %}
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -76,7 +78,7 @@
             </div>
         {% endif %}
         {% endwith %}
-        <form method="post" action="{{ url_for('edit_pet', pet_id=pet.id) }}">
+        <form method="post" action="{{ url_for('edit_pet', pet_id=pet.id) }}" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">Pet Name</label>
                 <input type="text" class="form-control" id="name" name="name" value="{{ pet.name }}" required>
@@ -85,10 +87,17 @@
                 <label for="type" class="form-label">Type (e.g., Dog, Cat)</label>
                 <input type="text" class="form-control" id="type" name="type" value="{{ pet.type }}" required>
             </div>
-            <div class="mb-3">
-                <label for="vaccine_name" class="form-label">Vaccine</label>
-                <input type="text" class="form-control" id="vaccine_name" name="vaccine_name" value="{{ pet.vaccine_name }}" required>
+            <div id="vaccines-container" class="mb-3">
+                <label class="form-label">Vaccines</label>
+                {% for vaccine in pet.vaccines %}
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" name="vaccine_name[]" value="{{ vaccine.vaccine_name }}" required>
+                        <input type="date" class="form-control" name="vaccination_date[]" value="{{ vaccine.vaccination_date }}" required>
+                        <button type="button" class="btn btn-danger" onclick="removeVaccine(this)">-</button>
+                    </div>
+                {% endfor %}
             </div>
+            <button type="button" class="btn btn-primary mb-3" onclick="addVaccine()">+</button>
             <div class="mb-3">
                 <label for="pet_photo" class="form-label">Pet Photo</label>
                 <input type="file" class="form-control" id="pet_photo" name="pet_photo">
@@ -98,5 +107,25 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <script>
+        function addVaccine() {
+            const container = document.getElementById('vaccines-container');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="text" class="form-control" name="vaccine_name[]" required>
+                <input type="date" class="form-control" name="vaccination_date[]" required>
+                <button type="button" class="btn btn-danger" onclick="removeVaccine(this)">-</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeVaccine(button) {
+            const container = document.getElementById('vaccines-container');
+            if (container.children.length > 1) {
+                container.removeChild(button.parentElement);
+            }
+        }
+    </script>
 </body>
 </html>

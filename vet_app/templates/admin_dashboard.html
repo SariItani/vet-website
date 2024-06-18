@@ -75,45 +75,49 @@
         {% endif %}
         {% endwith %}
         <div class="row">
-                <h2>Site Statistics</h2>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Users</h5>
-                            <p class="card-text">{{ total_users }}</p>
-                        </div>
-                    </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Pets</h5>
-                            <p class="card-text">{{ total_pets }}</p>
-                        </div>
-                    </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">New Users (Last 30 Days)</h5>
-                            <p class="card-text">{{ new_users }}</p>
-                        </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Users</h5>
+                        <p class="card-text">{{ total_users }}</p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">New Pets (Last 30 Days)</h5>
-                            <p class="card-text">{{ new_pets }}</p>
-                        </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Pets</h5>
+                        <p class="card-text">{{ total_pets }}</p>
                     </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Most Popular Pet Type</h5>
-                            <p class="card-text">{{ popular_pet_type }}</p>
-                        </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">New Users (Last 30 Days)</h5>
+                        <p class="card-text">{{ new_users }}</p>
                     </div>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Most Common Vaccines</h5>
-                            <p class="card-text">{{ common_vaccine }}</p>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">New Pets (Last 30 Days)</h5>
+                        <p class="card-text">{{ new_pets }}</p>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Most Popular Pet Type</h5>
+                        <p class="card-text">{{ popular_pet_type }}</p>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Most Common Vaccines</h5>
+                        <p class="card-text">{{ common_vaccine }}</p>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Vaccines (Last 30 Days)</h5>
+                        <p class="card-text">{{ recent_vaccines }}</p>
                     </div>
                 </div>
             </div>
