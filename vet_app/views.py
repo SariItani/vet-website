@@ -387,8 +387,11 @@ def admin_edit_pet(pet_id):
         cursor.close()
         conn.close()
         return redirect(url_for('manage_pets'))
-    cursor.execute('SELECT p.id, p.name, p.type, GROUP_CONCAT(pv.vaccine_name SEPARATOR ", ") as vaccines, p.photo FROM Pets p LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id WHERE p.id = %s', (pet_id,))
+    
+    cursor.execute('SELECT id, name, type, photo FROM Pets WHERE id = %s', (pet_id,))
     pet = cursor.fetchone()
+    cursor.execute('SELECT vaccine_name, vaccination_date FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
+    pet['vaccines'] = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template('admin_edit_pet.html', pet=pet)
