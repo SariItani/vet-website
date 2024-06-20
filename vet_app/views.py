@@ -113,15 +113,26 @@ def profile():
                 conn.commit()
         
         # Handle password change
-        password = request.form.get('password')
-        if password:
-            if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[\W_]', password):
-                flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if old_password and new_password and confirm_password:
+            cursor.execute('SELECT password FROM Users WHERE id = %s', (user_id,))
+            user = cursor.fetchone()
+            if not check_password_hash(user['password'], old_password):
+                flash('Old password is incorrect.', 'danger')
+            elif new_password != confirm_password:
+                flash('New passwords do not match.', 'danger')
             else:
-                password_hashed = generate_password_hash(password)
-                cursor.execute('UPDATE Users SET password = %s WHERE id = %s', (password_hashed, user_id))
-                conn.commit()
-    
+                if len(new_password) < 8 or not re.search(r'[A-Z]', new_password) or not re.search(r'[\W_]', new_password):
+                    flash('Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.', 'danger')
+                else:
+                    password_hashed = generate_password_hash(new_password)
+                    cursor.execute('UPDATE Users SET password = %s WHERE id = %s', (password_hashed, user_id))
+                    conn.commit()
+                    flash('Password updated successfully.', 'success')
+        
     cursor.execute('SELECT * FROM Users WHERE id = %s', (user_id,))
     user = cursor.fetchone()
     cursor.close()
