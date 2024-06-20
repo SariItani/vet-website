@@ -53,3 +53,23 @@ body {
     max-width: 100%;
     height: auto;
 }
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #343a40;
+    margin-bottom: 20px;
+}
+
+.profile-picture-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.remove-button {
+    margin-top: 10px;
+}

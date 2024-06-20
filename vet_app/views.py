@@ -112,6 +112,17 @@ def profile():
                 cursor.execute('UPDATE Users SET profile_picture = %s WHERE id = %s', (profile_picture.filename, user_id))
                 conn.commit()
         
+        # Handle profile picture removal
+        if 'remove_picture' in request.form:
+            cursor.execute('SELECT profile_picture FROM Users WHERE id = %s', (user_id,))
+            user = cursor.fetchone()
+            if user['profile_picture']:
+                picture_path = os.path.join(app.root_path, 'static/uploads', user['profile_picture'])
+                if os.path.exists(picture_path):
+                    os.remove(picture_path)
+                cursor.execute('UPDATE Users SET profile_picture = NULL WHERE id = %s', (user_id,))
+                conn.commit()
+
         # Handle password change
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
