@@ -50,43 +50,52 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <a href="{{ url_for('admin_dashboard') }}">
-            <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="Vet Clinic Logo">
-        </a>
-        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
-        <a href="{{ url_for('manage_pets') }}">View Pets</a>
-        <a href="{{ url_for('manage_employees') }}">Manage Employees</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </div>
-    <div class="content">
-        <h1 class="mb-4">Manage Pets</h1>
-        <ul class="list-group mb-4">
-            {% for pet in pets %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ pet.name }} ({{ pet.type }})</strong><br>
-                        <strong>Owner:</strong> {{ pet.owner_name }} ({{ pet.owner_email }})<br>
-                        <strong>Vaccines:</strong> {{ pet.vaccines }}
-                        {% if pet.photo %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
-                        {%else%}
-                            <p>image not available</p>
-                        {% endif %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1">
+                <div class="sidebar">
+                    <a href="{{ url_for('admin_dashboard') }}">
+                        <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="Vet Clinic Logo">
+                    </a>
+                    <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                    <a href="{{ url_for('manage_pets') }}">View Pets</a>
+                    <a href="{{ url_for('manage_employees') }}">Manage Employees</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+            <div class="col-md-11">
+                <div class="content">
+                    <h1 class="mb-4">Manage Pets</h1>
+                        <ul class="list-group mb-4">
+                            {% for pet in pets %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ pet.name }} ({{ pet.type }})</strong><br>
+                                        <strong>Owner:</strong> {{ pet.owner_name }} ({{ pet.owner_email }})<br>
+                                        <strong>Vaccines:</strong> {{ pet.vaccines }} <br>
+                                        {% if pet.photo %}
+                                            <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
+                                        {%else%}
+                                            <p>image not available</p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <form action="{{ url_for('admin_delete_pet', pet_id=pet.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm mb-1">
+                                                Delete <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        <a href="{{ url_for('admin_edit_pet', pet_id=pet.id) }}" class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    <div>
-                        <form action="{{ url_for('admin_delete_pet', pet_id=pet.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                Delete <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </form>
-                        <a href="{{ url_for('admin_edit_pet', pet_id=pet.id) }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
