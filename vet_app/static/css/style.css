@@ -3,7 +3,6 @@ body {
     color: #343a40; /* Adjust text color for better readability */
 }
 
-/* Ensure the sidebar and content adjust on smaller screens */
 .sidebar {
     background-color: #343a40;
     color: #fff;
@@ -32,7 +31,25 @@ body {
     color: #343a40;
 }
 
+@media (max-width: 767px) {
+    .content {
+        margin-left: 0;
+    }
+}
+
 .card {
     background-color: rgba(255, 255, 255, 0.8);
     color: #343a40;
+}
+
+@media (max-width: 767px) {
+    .card {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+
+.img-thumbnail {
+    max-width: 100%;
+    height: auto;
 }
