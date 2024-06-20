@@ -58,7 +58,7 @@
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{ url_for('logout') }}">Logout</a>
-    </div>    
+    </div>
     <div class="content">
         <h1 class="mb-4">Edit Your Profile</h1>
         <!-- Flash Messages -->
@@ -74,6 +74,16 @@
             </div>
         {% endif %}
         {% endwith %}
+        <div class="profile-picture-container">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="profile-picture" alt="Profile Picture">
+                <form method="post">
+                    <button type="submit" name="remove_picture" class="btn btn-danger remove-button">Remove Picture</button>
+                </form>
+            {% else %}
+                <img src="{{ url_for('static', filename='assets/default_profile.png') }}" class="profile-picture" alt="Profile Picture">
+            {% endif %}
+        </div>
         
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
@@ -84,12 +94,6 @@
                 <label for="profile_picture" class="form-label">Change Profile Picture</label>
                 <input type="file" class="form-control" id="profile_picture" name="profile_picture">
             </div>
-            {% if user.profile_picture %}
-                <div class="mb-3">
-                    <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="img-thumbnail mb-2" alt="Profile Picture" style="max-width: 150px;">
-                    <button type="submit" name="remove_picture" class="btn btn-danger">Remove Picture</button>
-                </div>
-            {% endif %}
             <div class="mb-3">
                 <label for="old_password" class="form-label">Old Password</label>
                 <input type="password" class="form-control" id="old_password" name="old_password">
