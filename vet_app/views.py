@@ -296,7 +296,7 @@ def manage_pets():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute('''
-        SELECT p.id, p.name, p.type, GROUP_CONCAT(CONCAT(pv.vaccine_name, ' (', pv.vaccination_date, ')') SEPARATOR ", ") as vaccines, p.photo, u.name as owner_name, u.email as owner_email
+        SELECT p.id, p.name, p.type, GROUP_CONCAT(CONCAT(pv.vaccine_name, ' (', pv.vaccination_date, ')') SEPARATOR ", ") as vaccines, p.photo, u.name as client_name, u.email as client_email
         FROM Pets p
         LEFT JOIN pet_vaccines pv ON p.id = pv.pet_id
         LEFT JOIN Users u ON p.user_id = u.id

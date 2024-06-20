@@ -53,7 +53,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-1 col-sm-12">
+            <div class="col-md-1">
                 <div class="sidebar">
                     <a href="{{ url_for('admin_dashboard') }}">
                         <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="Vet Clinic Logo">
@@ -64,7 +64,7 @@
                     <a href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </div>
-            <div class="col-md-11 col-sm-12">
+            <div class="col-md-11">
                 <div class="content">
                     <h1 class="mb-4">Manage Pets</h1>
                     <input type="text" id="clientSearch" class="form-control mb-4" placeholder="Search by client...">
@@ -92,7 +92,6 @@
                                 </a>
                             </div>
                         </li>
-                        <br>
                         {% endfor %}
                     </ul>
                 </div>
