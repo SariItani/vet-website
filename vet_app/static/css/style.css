@@ -1,6 +1,6 @@
 body {
     background-color: white; /* Adjust to desired background color */
-    color: #343a40; /* Adjust text color for better readability */
+    color: white /* Adjust text color for better readability */
 }
 
 .sidebar {
@@ -72,4 +72,11 @@ body {
 
 .remove-button {
     margin-top: 10px;
+}
+
+.profile-picture-container-2 {
+    display: flex;
+    align-items: left;
+    justify-content: center;
+    flex-direction: column;
 }

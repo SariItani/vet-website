@@ -66,11 +66,13 @@
             <div class="col-md-11">
                 <div class="content">
                     <h1 class="mb-4">Dashboard, Welcome {{ username }}!</h1>
-                    {% if user.profile_picture %}
-                    <div class="mb-3">
-                        <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="img-thumbnail mb-2" alt="Profile Picture" style="max-width: 150px;">
+                    <div class="profile-picture-container-2">
+                        {% if user.profile_picture %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="profile-picture" alt="Profile Picture">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='assets/default_profile.png') }}" class="profile-picture" alt="Profile Picture">
+                        {% endif %}
                     </div>
-                    {% endif %}
                         <!-- Flash Messages -->
                         {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}

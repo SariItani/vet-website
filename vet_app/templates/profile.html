@@ -78,7 +78,7 @@
             {% if user.profile_picture %}
                 <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="profile-picture" alt="Profile Picture">
                 <form method="post">
-                    <button type="submit" name="remove_picture" class="btn btn-danger remove-button">Remove Picture</button>
+                    <button type="submit" name="remove_picture" class="btn btn-danger remove-button mb-2">Remove Picture</button>
                 </form>
             {% else %}
                 <img src="{{ url_for('static', filename='assets/default_profile.png') }}" class="profile-picture" alt="Profile Picture">
@@ -86,7 +86,7 @@
         </div>
         
         <form method="post" enctype="multipart/form-data">
-            <div class="mb-3">
+            <div class="mb-3 mt-5">
                 <label for="username" class="form-label">Change Username</label>
                 <input type="text" class="form-control" id="username" name="username" value="{{ user.name }}">
             </div>
