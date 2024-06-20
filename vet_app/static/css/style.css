@@ -1,0 +1,38 @@
+body {
+    background-color: white; /* Adjust to desired background color */
+    color: #343a40; /* Adjust text color for better readability */
+}
+
+/* Ensure the sidebar and content adjust on smaller screens */
+.sidebar {
+    background-color: #343a40;
+    color: #fff;
+    height: 100%;
+    padding: 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 250px;
+}
+
+@media (max-width: 767px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+    }
+    .content {
+        margin-left: 0;
+    }
+}
+
+.content {
+    margin-left: 260px;
+    padding: 20px;
+    color: #343a40;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #343a40;
+}
