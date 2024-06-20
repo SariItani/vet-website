@@ -52,7 +52,7 @@
 <body>
     <div class="sidebar">
         <a href="{{ url_for('admin_dashboard') }}">
-            <img src="{{ url_for('static', filename='assets/clinic.png') }}" alt="Vet Clinic Logo">
+            <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="Vet Clinic Logo">
         </a>
         <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
         <a href="{{ url_for('manage_pets') }}">View Pets</a>
@@ -74,6 +74,13 @@
             </div>
         {% endif %}
         {% endwith %}
+        <form method="POST" action="{{ url_for('upload_logo') }}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="new_logo" class="form-label">Upload New Logo</label>
+                <input type="file" class="form-control" id="new_logo" name="new_logo" required>
+            </div>
+            <button type="submit" class="btn btn-primary mb-5">Upload Logo</button>
+        </form>        
         <div class="row">
             <div class="col-md-6">
                 <div class="card mb-4">
@@ -94,6 +101,12 @@
                         <p class="card-text">{{ new_users }}</p>
                     </div>
                 </div>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Vaccines (Last 30 Days)</h5>
+                        <p class="card-text">{{ recent_vaccines }}</p>
+                    </div>
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="card mb-4">
@@ -112,12 +125,6 @@
                     <div class="card-body">
                         <h5 class="card-title">Most Common Vaccines</h5>
                         <p class="card-text">{{ common_vaccine }}</p>
-                    </div>
-                </div>
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Recent Vaccines (Last 30 Days)</h5>
-                        <p class="card-text">{{ recent_vaccines }}</p>
                     </div>
                 </div>
             </div>

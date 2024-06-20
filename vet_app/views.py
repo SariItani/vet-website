@@ -511,6 +511,25 @@ def delete_pet(pet_id):
     flash('Pet deleted successfully.', 'success')
     return redirect(url_for('dashboard'))
 
+@app.route('/upload_logo', methods=['POST'])
+def upload_logo():
+    if 'employee_id' not in session or session.get('employee_role') != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    
+    if 'new_logo' in request.files:
+        new_logo = request.files['new_logo']
+        if new_logo.filename != '':
+            logo_path = os.path.join(app.root_path, 'static/assets', 'new_logo.jpeg')
+            new_logo.save(logo_path)
+            flash('Logo updated successfully.', 'success')
+        else:
+            flash('No file selected.', 'danger')
+    else:
+        flash('No file selected.', 'danger')
+    
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/logout')
 def logout():
     session.clear()
