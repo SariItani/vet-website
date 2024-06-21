@@ -20,14 +20,6 @@
             max-width: 100px;
             margin-bottom: 20px;
         }
-        .btn-custom {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        .btn-custom:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -50,7 +42,7 @@
         {% endwith %}
         <p class="lead mb-4">Your one-stop solution for managing your pets' health records.</p>
         <div class="d-grid gap-2 d-md-block">
-            <a href="{{ url_for('register') }}" class="btn btn-custom btn-lg">Register</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Register</a>
             <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Login</a>
         </div>
     </div>

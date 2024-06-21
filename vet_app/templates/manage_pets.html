@@ -82,12 +82,12 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <form action="{{ url_for('delete_pet', pet_id=pet.id) }}" method="POST" style="display:inline;">
+                                <form action="{{ url_for('admin_delete_pet', pet_id=pet.id) }}" method="POST" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm mb-1">
                                         Delete <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
-                                <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn btn-secondary btn-sm">
+                                <a href="{{ url_for('admin_edit_pet', pet_id=pet.id) }}" class="btn btn-secondary btn-sm">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
                             </div>
