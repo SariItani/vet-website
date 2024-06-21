@@ -76,7 +76,7 @@
                     <form method="post" action="{{ url_for('edit_pet', pet_id=pet.id) }}" enctype="multipart/form-data">
                     {% if pet.photo %}
                         <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
-                        <button type="submit" name="remove_picture" class="btn btn-danger remove-button mb-2">Remove Picture</button>
+                        <br><button type="submit" name="remove_picture" class="btn btn-danger remove-button mb-2">Remove Picture</button>
                     {% else %}
                         <p>image not available</p>
                     {% endif %}

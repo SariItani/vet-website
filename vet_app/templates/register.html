@@ -60,7 +60,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <button type="button" class="btn btn-secondary" id="password_btn" onclick="togglePassword('password', 'password_btn')">Show</button>
+                        </div>
                         <div class="form-text text-white">Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.</div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg w-100">Register</button>
@@ -82,6 +85,17 @@
                 return false;
             }
             return true;
+        }
+        function togglePassword(id, btn_id) {
+            var passwordField = document.getElementById(id);
+            var passwordBtn = document.getElementById(btn_id);
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                passwordBtn.innerText = "Hide"
+            } else {
+                passwordField.type = "password";
+                passwordBtn.innerText = "Show"
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

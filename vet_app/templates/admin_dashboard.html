@@ -63,7 +63,7 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
         <div class="content">
-            <h1 class="mb-4">Admin Dashboard, Welcome Admin!</h1>
+            <h1 class="mb-4">Admin Dashboard</h1>
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -76,15 +76,8 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            {% endwith %}
-            <form method="POST" action="{{ url_for('upload_logo') }}" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="new_logo" class="form-label">Upload New Logo</label>
-                    <input type="file" class="form-control" id="new_logo" name="new_logo" required>
-                </div>
-                <button type="submit" class="btn btn-primary mb-5">Upload Logo</button>
-            </form>        
-            <div class="row">
+            {% endwith %}        
+            <div class="row mb-5">
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-body">
@@ -132,6 +125,13 @@
                     </div>
                 </div>
             </div>
+            <form method="POST" action="{{ url_for('upload_logo') }}" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="new_logo" class="form-label">Upload New Logo</label>
+                    <input type="file" class="form-control" id="new_logo" name="new_logo" required>
+                </div>
+                <button type="submit" class="btn btn-primary mb-5">Upload Logo</button>
+            </form>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
