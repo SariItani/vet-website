@@ -55,6 +55,13 @@
         <a href="{{ url_for('dashboard') }}">
             <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="Vet Clinic Logo">
         </a>
+        <div class="profile-picture-container-2">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='uploads/' ~ user.profile_picture) }}" class="profile-picture" alt="Profile Picture">
+            {% else %}
+                <img src="{{ url_for('static', filename='assets/default_profile.png') }}" class="profile-picture" alt="Profile Picture">
+            {% endif %}
+        </div>
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{ url_for('logout') }}">Logout</a>
