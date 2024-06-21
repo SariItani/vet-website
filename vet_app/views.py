@@ -500,6 +500,8 @@ def edit_pet(pet_id):
         return redirect(url_for('login'))
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+    user = cursor.execute('SELECT * from Users WHERE id = %s', (session['user_id'],))
+    user = cursor.fetchone()
     if request.method == 'POST':
         name = request.form['name']
         type = request.form['type']
@@ -540,7 +542,7 @@ def edit_pet(pet_id):
     pet['vaccines'] = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('edit_pet.html', pet=pet)
+    return render_template('edit_pet.html', pet=pet, user=user)
 
 @app.route('/delete_pet/<int:pet_id>', methods=['POST'])
 def delete_pet(pet_id):
