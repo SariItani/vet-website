@@ -63,8 +63,10 @@
         </div>
     <div class="content">
         <h1 class="mb-4">Edit Pet</h1>
+        <form method="post" action="{{ url_for('admin_edit_pet', pet_id=pet.id) }}" enctype="multipart/form-data">
         {% if pet.photo %}
             <img src="{{ url_for('static', filename='uploads/' ~ pet.photo) }}" class="img-thumbnail mb-2" alt="Pet Photo" style="max-width: 150px;">
+            <button type="submit" name="remove_picture" class="btn btn-danger remove-button mb-2">Remove Picture</button>
         {% else %}
             <p>image not available</p>
         {% endif %}
@@ -81,7 +83,6 @@
             </div>
         {% endif %}
         {% endwith %}
-        <form method="post" action="{{ url_for('admin_edit_pet', pet_id=pet.id) }}" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="name" class="form-label">Pet Name</label>
                 <input type="text" class="form-control" id="name" name="name" value="{{ pet.name }}" required>
@@ -105,7 +106,7 @@
                 <label for="pet_photo" class="form-label">Pet Photo</label>
                 <input type="file" class="form-control" id="pet_photo" name="pet_photo">
             </div>
-            <button type="submit" class="btn btn-success">Update</button>
+            <button type="submit" name="update" class="btn btn-success">Update</button>
         </form>
     </div>
     </div>

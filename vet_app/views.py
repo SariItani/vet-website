@@ -401,6 +401,17 @@ def admin_edit_pet(pet_id):
                 save_and_resize_image(pet_photo, photo_filename)
                 cursor.execute('UPDATE Pets SET photo = %s WHERE id = %s', (photo_filename, pet_id))
         
+        # Handle pet picture removal
+        if 'remove_picture' in request.form:
+            cursor.execute('SELECT photo FROM Pets WHERE id = %s', (pet_id,))
+            pet = cursor.fetchone()
+            if pet['photo']:
+                picture_path = os.path.join(app.root_path, 'static/uploads', pet['photo'])
+                if os.path.exists(picture_path):
+                    os.remove(picture_path)
+                cursor.execute('UPDATE Pets SET photo = NULL WHERE id = %s', (pet_id,))
+                conn.commit()
+
         cursor.execute('UPDATE Pets SET name = %s, type = %s WHERE id = %s', (name, type, pet_id))
         cursor.execute('DELETE FROM pet_vaccines WHERE pet_id = %s', (pet_id,))
         for vaccine_name, vaccination_date in zip(vaccines, vaccination_dates):
@@ -495,6 +506,17 @@ def edit_pet(pet_id):
         
         vaccines = request.form.getlist('vaccine_name[]')
         vaccination_dates = request.form.getlist('vaccination_date[]')
+        
+        # Handle pet picture removal
+        if 'remove_picture' in request.form:
+            cursor.execute('SELECT photo FROM Pets WHERE id = %s', (pet_id,))
+            pet = cursor.fetchone()
+            if pet['photo']:
+                picture_path = os.path.join(app.root_path, 'static/uploads', pet['photo'])
+                if os.path.exists(picture_path):
+                    os.remove(picture_path)
+                cursor.execute('UPDATE Pets SET photo = NULL WHERE id = %s', (pet_id,))
+                conn.commit()
         
         if 'pet_photo' in request.files:
             pet_photo = request.files['pet_photo']
