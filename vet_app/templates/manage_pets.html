@@ -66,7 +66,43 @@
             </div>
             <div class="col-md-11">
                 <div class="content">
-                    <h1 class="mb-4">Manage Pets</h1>
+                    <h2 class="mb-4">Add a Pet</h2>
+                    <form method="post" action="{{ url_for('add_pet_employee') }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="user_id" class="form-label">Client</label>
+                            <!-- turn this ^ into a select drop down -->
+                            <select name="user_id" id="user_id" class="form-control" required>
+                                <option disabled>Select User</option>
+                                {% for client in clients %}
+                                <option value="{{client.id}}">{{client.name}} ({{client.email}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Pet Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="type" class="form-label">Type (e.g., Dog, Cat)</label>
+                            <input type="text" class="form-control" id="type" name="type" required>
+                        </div>
+                        <div id="vaccines-container" class="mb-3">
+                            <label class="form-label">Vaccines</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="vaccine_name[]" required>
+                                <input type="date" class="form-control" name="vaccination_date[]" required>
+                                <button type="button" class="btn btn-danger" onclick="removeVaccine(this)">-</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary mb-3" onclick="addVaccine()">+</button>
+                        <div class="mb-3">
+                            <label for="pet_photo" class="form-label">Pet Photo</label>
+                            <input type="file" class="form-control" id="pet_photo" name="pet_photo">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Pet</button>
+                    </form>
+                    <br>
+                    <h1 class="mb-4 mt-5">Manage Pets</h1>
                     <input type="text" id="clientSearch" class="form-control mb-4" placeholder="Search by client...">
                     <ul id="petsList" class="list-group">
                         {% for pet in pets %}
@@ -116,6 +152,26 @@
                 }
             }
         });
+    </script>
+    <script>
+        function addVaccine() {
+            const container = document.getElementById('vaccines-container');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="text" class="form-control" name="vaccine_name[]" required>
+                <input type="date" class="form-control" name="vaccination_date[]" required>
+                <button type="button" class="btn btn-danger" onclick="removeVaccine(this)">-</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeVaccine(button) {
+            const container = document.getElementById('vaccines-container');
+            if (container.children.length > 1) {
+                container.removeChild(button.parentElement);
+            }
+        }
     </script>
 </body>
 </html>

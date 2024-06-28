@@ -303,9 +303,11 @@ def manage_pets():
         GROUP BY p.id
     ''')
     pets = cursor.fetchall()
+    cursor.execute("SELECT id, name, email, profile_picture FROM Users")
+    clients = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('manage_pets.html', pets=pets)
+    return render_template('manage_pets.html', pets=pets, clients=clients)
 
 @app.route('/manage_employees')
 def manage_employees():
@@ -379,6 +381,37 @@ def delete_employee(employee_id):
     conn.close()
     flash('Employee deleted successfully.', 'success')
     return redirect(url_for('manage_employees'))
+
+@app.route('/add_pet_employee', methods=['POST'])
+def add_pet_employee():
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'employee']:
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    employee_id = session['employee_id']
+    user_id = request.form['user_id']
+    name = request.form['name']
+    type = request.form['type']
+    
+    vaccines = request.form.getlist('vaccine_name[]')
+    vaccination_dates = request.form.getlist('vaccination_date[]')
+    
+    photo_filename = None
+    if 'pet_photo' in request.files:
+        pet_photo = request.files['pet_photo']
+        if pet_photo.filename != '':
+            photo_filename = pet_photo.filename
+            save_and_resize_image(pet_photo, photo_filename)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO Pets (user_id, name, type, photo, registration_date) VALUES (%s, %s, %s, %s, CURDATE())', (user_id, name, type, photo_filename))
+    pet_id = cursor.lastrowid
+    for vaccine_name, vaccination_date in zip(vaccines, vaccination_dates):
+        cursor.execute('INSERT INTO pet_vaccines (pet_id, vaccine_name, vaccination_date) VALUES (%s, %s, %s)', (pet_id, vaccine_name, vaccination_date))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('manage_pets'))
 
 @app.route('/admin_edit_pet/<int:pet_id>', methods=['GET', 'POST'])
 def admin_edit_pet(pet_id):
