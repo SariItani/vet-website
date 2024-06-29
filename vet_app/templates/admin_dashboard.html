@@ -10,7 +10,10 @@
         body {
             background: url("{{ url_for('static', filename='assets/bg4.jpg') }}") no-repeat center center fixed;
             background-size: cover;
-            color: #343a40;
+            color: #ffffff;
+        }
+        h1 {
+            color: #fff;
         }
         .sidebar {
             background-color: #343a40;
@@ -46,7 +49,7 @@
             cursor: pointer;
         }
         .form-label, .list-group-item {
-            color: #343a40;
+            color: #ffffff;
         }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -130,7 +133,7 @@
                     <label for="new_logo" class="form-label">Upload New Logo</label>
                     <input type="file" class="form-control" id="new_logo" name="new_logo" required>
                 </div>
-                <button type="submit" class="btn btn-primary mb-5">Upload Logo</button>
+                <button type="submit" class="btn btn-success mb-5">Upload Logo</button>
             </form>
         </div>
     </div>

@@ -9,7 +9,13 @@
         body {
             background: url("{{ url_for('static', filename='assets/bg4.jpg') }}") no-repeat center center fixed;
             background-size: cover;
-            color: #343a40; /* Dark color for text */
+            color: #ffffff; /* Dark color for text */
+        }
+        h1 {
+            color: #fff;
+        }
+        label {
+            color: white;
         }
         .sidebar {
             background-color: #343a40;
@@ -33,11 +39,11 @@
         .content {
             margin-left: 260px;
             padding: 20px;
-            color: #343a40; /* Dark color for text */
+            color: #ffffff; /* Dark color for text */
         }
         .card {
             background-color: rgba(255, 255, 255, 0.8);
-            color: #343a40; /* Dark color for card text */
+            color: #ffffff; /* Dark color for card text */
         }
         .sidebar img {
             max-width: 100%;
@@ -45,7 +51,10 @@
             cursor: pointer;
         }
         .form-label, .list-group-item {
-            color: #343a40; /* Dark color for form labels and list items */
+            color: #ffffff; /* Dark color for form labels and list items */
+        }
+        .label {
+            color: #fff;
         }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -101,7 +110,7 @@
                     </div>
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-primary mb-3" onclick="addVaccine()">+</button>
+            <button type="button" class="btn btn-success mb-3" onclick="addVaccine()">+</button>
             <div class="mb-3">
                 <label for="pet_photo" class="form-label">Pet Photo</label>
                 <input type="file" class="form-control" id="pet_photo" name="pet_photo">

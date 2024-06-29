@@ -11,6 +11,12 @@
             background-size: cover;
             color: #343a40;
         }
+        h1 {
+            color: white;
+        }
+        h2 {
+            color: white;
+        }
         .sidebar {
             background-color: #343a40;
             color: #fff;
@@ -44,8 +50,8 @@
             margin-bottom: 20px;
             cursor: pointer;
         }
-        .form-label, .list-group-item {
-            color: #343a40;
+        .form-label {
+            color: #ffffff;
         }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -94,12 +100,12 @@
                                 <button type="button" class="btn btn-danger" onclick="removeVaccine(this)">-</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary mb-3" onclick="addVaccine()">+</button>
+                        <button type="button" class="btn btn-success mb-3" onclick="addVaccine()">+</button>
                         <div class="mb-3">
                             <label for="pet_photo" class="form-label">Pet Photo</label>
                             <input type="file" class="form-control" id="pet_photo" name="pet_photo">
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Pet</button>
+                        <button type="submit" class="btn btn-success">Add Pet</button>
                     </form>
                     <br>
                     <h1 class="mb-4 mt-5">Manage Pets</h1>
