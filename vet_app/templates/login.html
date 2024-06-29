@@ -35,7 +35,10 @@
                     <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="VetClinic Logo" class="logo">
                 </div>
                 <h1 class="mb-4 text-center">Login</h1>
-                <!-- Flash Messages -->
+                <div class="text-center">
+                    <a href="/" class="btn btn-primary">Back to Home</a>
+                </div>
+                    <!-- Flash Messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <div class="alert-container">

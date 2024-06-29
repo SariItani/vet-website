@@ -211,8 +211,8 @@ def verify_email(token):
     conn.close()
     return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/manager_login', methods=['GET', 'POST'])
+def manager_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -225,6 +225,17 @@ def login():
             session['employee_id'] = employee['id']
             session['employee_role'] = employee['role']
             return redirect(url_for('admin_dashboard'))
+        
+        flash('Invalid email or password.', 'danger')
+    return render_template('login-employee.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
         
         cursor.execute('SELECT * FROM Users WHERE email = %s', (email,))
         user = cursor.fetchone()
@@ -612,4 +623,4 @@ def upload_logo():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         body {
@@ -34,11 +34,11 @@
                 <div class="text-center">
                     <img src="{{ url_for('static', filename='assets/new_logo.jpeg') }}" alt="VetClinic Logo" class="logo">
                 </div>
-                <h1 class="mb-4 text-center">Register</h1>
+                <h1 class="mb-4 text-center">Login</h1>
                 <div class="text-center">
                     <a href="/" class="btn btn-primary">Back to Home</a>
                 </div>
-                <!-- Flash Messages -->
+                    <!-- Flash Messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <div class="alert-container">
@@ -51,12 +51,8 @@
                         </div>
                     {% endif %}
                 {% endwith %}
-
-                <form method="post" onsubmit="return validatePassword()">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
+                
+                <form method="post">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
@@ -67,28 +63,15 @@
                             <input type="password" class="form-control" id="password" name="password" required>
                             <button type="button" class="btn btn-secondary" id="password_btn" onclick="togglePassword('password', 'password_btn')">Show</button>
                         </div>
-                        <div class="form-text text-white">Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.</div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Register</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Login</button>
                 </form>
-                <div class="mt-3 text-center">
-                    <a href="{{ url_for('login') }}" class="text-white">Already have an account? Login</a>
-                </div>
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     <script>
-        function validatePassword() {
-            var password = document.getElementById("password").value;
-            var errorMsg = "Password must be at least 8 characters long, contain at least one uppercase letter, and one special character.";
-            var regex = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
-
-            if (!regex.test(password)) {
-                alert(errorMsg);
-                return false;
-            }
-            return true;
-        }
         function togglePassword(id, btn_id) {
             var passwordField = document.getElementById(id);
             var passwordBtn = document.getElementById(btn_id);
@@ -101,7 +84,5 @@
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 </body>
 </html>
